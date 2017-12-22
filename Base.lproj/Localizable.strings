@@ -1,0 +1,53 @@
+/* 
+  Localizable.strings
+  Delight
+
+  Created by mac on 2017/9/15.
+  Copyright © 2017年 mac. All rights reserved.
+*/
+"profile_control_no_device_message" = "Pull down to refresh…";
+"profile_control_device_scanning" = "Refreshing, Please wait…";
+
+"title_home" = "Home";
+"title_products" = "MBT Product";
+"title_contact" = "Contact Us";
+"title_about" = "About";
+
+"alertdialog_rename_title" = "Display name";
+"alertdialog_rename_meggage" = "Please, provise a new display name:";
+"alertdialog_ok" = "OK";
+"alertdialog_cancel" = "Cancel";
+"alertdialog_reconnection" = "reconnection";
+
+"time_hour" = "Hours";
+"time_min" = "Mins";
+"time_sec" = "Secs";
+
+"device_info" = "Device Information";
+"div_manufacturer_name" = "Manufacturer Name";
+"div_model_name" = "Model Number";
+"div_serial_name" = "Serial Number";
+"div_hardware_name" = "Hardware Revision";
+"div_firmware_name" = "Firmware Revision";
+
+"progress_message_service_discovering" = "Discovering services. Please wait…";
+"alert_message_connect" = "Connecting to the device";
+"alert_message_bluetooth_disconnect" = "is disconnected";
+"alert_message_bluetooth_connect" = "is connected";
+"alert_message_service_undiscovered" = "No services found！\n Please reconnection device";
+"alert_message_sorry" = "Sorry";
+"alert_message_reconnection" = "\n is disconnected，Please reconnection device";
+
+
+
+
+
+
+
+
+
+
+
+
+
+

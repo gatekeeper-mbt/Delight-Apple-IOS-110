@@ -1,0 +1,43 @@
+/* 
+  Localizable.strings
+  Delight
+
+  Created by mac on 2017/9/15.
+  Copyright © 2017年 mac. All rights reserved.
+*/
+"profile_control_no_device_message" = "請下拉搜尋裝置...";
+"profile_control_device_scanning" = "尋找裝置中，請稍候......";
+
+"title_home" = "首頁";
+"title_products" = "MBT 產品";
+"title_contact" = "聯絡我們";
+"title_about" = "關於";
+
+"alertdialog_rename_title" = "裝置顯示名稱";
+"alertdialog_rename_meggage" = "請輸入新的裝置顯示名稱:";
+"alertdialog_ok" = "確定";
+"alertdialog_cancel" = "取消";
+"alertdialog_reconnection" = "重新連接";
+
+"time_hour" = "時";
+"time_min" = "分";
+"time_sec" = "秒";
+
+"device_info" = "裝置資訊";
+"div_manufacturer_name" = "製造商";
+"div_model_name" = "型號";
+"div_serial_name" = "序號";
+"div_hardware_name" = "硬體版本";
+"div_firmware_name" = "韌體版本";
+
+"progress_message_service_discovering" = "尋找服務中. 請稍候…";
+"alert_message_connect" = "連接裝置";
+"alert_message_bluetooth_disconnect" = "連接已終止";
+"alert_message_bluetooth_connect" = "已連接";
+"alert_message_service_undiscovered" = "尋找服務失敗！\n 請重新連接裝置";
+"alert_message_sorry" = "抱歉";
+"alert_message_reconnection" = "\n 連接已終止，請重新連接裝置";
+
+
+
+

@@ -1,0 +1,3 @@
+framework module Serialize {
+    header "Serialize-Swift.h"
+}
