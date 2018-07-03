@@ -46,12 +46,14 @@ class BluetoothViewController: BaseViewController{
     var ConnectMACAddress:String = ""
     var DeviceName:String = ""
     
+    var FirstLaunch:Bool = false
     var PowerON_Flag:Bool = false
     var hourglassON_Flag:Bool = false
     var playON_Flag:Bool = false
     var stopON_Flag:Bool = false
     var DelDevice:Bool = false
-    
+    var WriteData_Flag:Bool = false
+    var mSend_INTENSITY:Bool = false
     var alertController:UIAlertController? = nil
     
     //需要連接的 CBCharacteristic 的 UUID
@@ -62,8 +64,9 @@ class BluetoothViewController: BaseViewController{
     var btServices: [BTServiceInfo] = []
 
     //發送獲取數據的指令
-    var getbytes :[UInt8] = [0x00, 0x00, 0xFF, 0x00, 0x00, 0x00] //[0] Function; [1] LAMP ON/OFF; [2] INTENSITY; [3] Timer; [4] Time1; [5] Time2
-    var timebytes:[UInt8] = [0x00, 0x00]
+    var getbytes :[UInt8] = [0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00] //[0] Function; [1] LAMP ON/OFF; [2] INTENSITY; [3] Timer; [4] Time1; [5] Time2
+    var recbytes :[UInt8] = [0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00]
+    var timebytes:[UInt8] = [0x00, 0x00, 0x00]
     
     var memTime = 0
     var defaultTime = 1800
@@ -152,17 +155,18 @@ class BluetoothViewController: BaseViewController{
             for: UIControlEvents.touchUpInside
         )
         
-        powerButton.isEnabled = false
+        FirstLaunch = true
         hourglassButton.isEnabled = false
-        playButton.isEnabled = false
-        stopButton.isEnabled = false
-        setTimer.isEnabled = false
-        slider.isEnabled = false
-        hoursLabel.isEnabled = false
+        powerButton.isEnabled = false
         colonLable1.isEnabled = false
         minuteLabel.isEnabled = false
         colonLable2.isEnabled = false
         secondLabel.isEnabled = false
+        hoursLabel.isEnabled = false
+        playButton.isEnabled = false
+        stopButton.isEnabled = false
+        setTimer.isEnabled = false
+        slider.isEnabled = false
         minImage.alpha = 0.3
         maxImage.alpha = 0.3
 
@@ -177,12 +181,11 @@ class BluetoothViewController: BaseViewController{
         }else{
             PowerOn()
             value = 100.0
+            BTWriteValue()
         }
         
         //置滑塊的值，同时有動畫
         slider.setValue(Float(value), animated: true)
-        
-        BTWriteValue()
     }
     
     func PowerOn(){
@@ -190,7 +193,7 @@ class BluetoothViewController: BaseViewController{
         powerButton.setBackgroundImage(UIImage(named: "power_on"), for: .normal)
         PowerON_Flag = true
         getbytes[1] = 0x00
-        getbytes[2] = 0xFF
+        //getbytes[2] = 0xFF
         slider.isEnabled = true
         minImage.alpha = 1
         maxImage.alpha = 1
@@ -201,14 +204,14 @@ class BluetoothViewController: BaseViewController{
         // 設置背景圖片
         powerButton.setBackgroundImage(UIImage(named: "power_off"), for: .normal)
         PowerON_Flag = false
-        getbytes[1] = 0x01
-        getbytes[2] = 0x00
         slider.isEnabled = false
         minImage.alpha = 0.3
         maxImage.alpha = 0.3
         hourglassButton.isEnabled = false
         hourglassON_Flag = false
-        hourglassOff()
+        getbytes[1] = 0x01
+        getbytes[2] = 0x00
+       hourglassOff()
     }
     
     func hourglassStatus(){
@@ -244,9 +247,11 @@ class BluetoothViewController: BaseViewController{
         minuteLabel.isEnabled = false
         colonLable2.isEnabled = false
         secondLabel.isEnabled = false
-        
-        stopStatus()
         setTimer.isEnabled = false
+
+        //if playON_Flag == true{
+            stopStatus()
+        //}
     }
     
     func playStatus(){
@@ -268,6 +273,7 @@ class BluetoothViewController: BaseViewController{
         getbytes[3] = 0x01
         getbytes[4] = timebytes[0]
         getbytes[5] = timebytes[1]
+        getbytes[6] = timebytes[2]
     }
     
     func playOff(){ //暫停計時
@@ -282,8 +288,8 @@ class BluetoothViewController: BaseViewController{
         playButton.setBackgroundImage( UIImage(named: "play"), for: .normal)
         stopButton.setBackgroundImage(UIImage(named: "stop_off"), for: .normal)
         playON_Flag = false
-        getbytes[3] = 0x03
         setTimer.isEnabled = true
+        getbytes[3] = 0x03
 
         formateTimer(timers: memTime)
 
@@ -297,13 +303,16 @@ class BluetoothViewController: BaseViewController{
         value = Int(Double(value) * 2.55)
         getbytes[2] = UInt8(value)
         print(getbytes[2])
-
+        mSend_INTENSITY = true;
+        
         BTWriteValue()
     }
     
     func BTWriteValue(){
+        getbytes[0] = 0x01
         print("寫入: \(getbytes)")
         self.characteristicWriteValue(self.connectedPeripheral , didWriteValueFor :self.writeCharacteristic, value: getbytes)
+        WriteData_Flag = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -596,42 +605,57 @@ extension BluetoothViewController :CBCentralManagerDelegate,CBPeripheralDelegate
         print("----didUpdateValueForCharacteristic---")
         
         let data:Data = characteristic.value!
-        if getbytes[1] == 0 && characteristic.uuid.uuidString == CharacteristicUUID {
-            getbytes  = Array(UnsafeBufferPointer(start: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count), count: data.count))
+        if characteristic.uuid.uuidString == CharacteristicUUID {
+            recbytes  = Array(UnsafeBufferPointer(start: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count), count: data.count))
         }
         //print(data)
-        print(characteristic.uuid)
-        print(getbytes)
+        //print(characteristic.uuid)
+        print(recbytes)
         
        
-        if getbytes.count > 4 && characteristic.uuid.uuidString == CharacteristicUUID {
+        if recbytes.count > 4 && characteristic.uuid.uuidString == CharacteristicUUID {
             //尋找服務視窗3秒鐘後自動消失
             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
                 self.presentedViewController?.dismiss(animated: false, completion: nil)
             }
 
             powerButton.isEnabled = true
-
-            if getbytes[1] == 0 && PowerON_Flag == false {
-                let value = Float(getbytes[2]) / 2.55
+            
+            let value = Float(recbytes[2]) / 2.55
+            if mSend_INTENSITY == false{
                 //設置滑塊的值，同时有動畫
                 slider.setValue(Float(value), animated: true)
+                getbytes[2] = recbytes[2]
+            }else if Float(getbytes[2]) == value{
+                mSend_INTENSITY = false
+            }
+            
+            if recbytes[0] == 10{
+                slider.isEnabled = false
+                hourglassButton.isEnabled = false
+            }else if recbytes[0] == 1 && PowerON_Flag == true{
+                slider.isEnabled = true
+                hourglassButton.isEnabled = true
+            }
+            
+            if recbytes[1] == 0 && getbytes[1] == 0 && PowerON_Flag == false {
                 PowerON_Flag = true
                 PowerOn()
-            }else if getbytes[1] == 1 && PowerON_Flag == true {
+            }else if recbytes[1] == 1 && PowerON_Flag == true {
                 PowerON_Flag = false
-                PowerOff()
+                //PowerOff()
+                print("PowerOff~")
             }
  
-            if hourglassON_Flag == false && PowerON_Flag == true {
+            if hourglassON_Flag == false && PowerON_Flag == true && FirstLaunch == true {
                 //開始
-                if getbytes[3] == 1{
+                if recbytes[3] == 1{
                     hourglassON_Flag = true
                     playON_Flag = true
                     hourglassOn()
                     playOn()
                 }//暫停
-                else if getbytes[3] == 2 && playON_Flag == false {
+                else if recbytes[3] == 2 && playON_Flag == false {
                     hourglassON_Flag = true
                     playON_Flag = true
                     hourglassOn()
@@ -640,15 +664,16 @@ extension BluetoothViewController :CBCentralManagerDelegate,CBPeripheralDelegate
                     stopButton.setBackgroundImage(UIImage(named: "stop_on"), for: .normal)
                     //formateTimer(timers: Timer)
                 }//停止
-                else if getbytes[3] == 3 {
+                else if recbytes[3] == 3 {
                     //hourglassON_Flag = true
                     //playON_Flag = true
                     //hourglassOn()
                 }
+                FirstLaunch = false
             }
             
-            if playON_Flag == true {
-                let Timer = (Int(getbytes[4]) * 256 + Int(getbytes[5]))
+            if playON_Flag == true && (recbytes[3] == 1 || recbytes[3] == 2) {
+                let Timer = ((Int(recbytes[4]) * 65536) + (Int(recbytes[5]) * 256) + Int(recbytes[6]))
                 print(Timer)
                 formateTimer(timers: Timer)
             }
@@ -709,10 +734,12 @@ extension BluetoothViewController :CBCentralManagerDelegate,CBPeripheralDelegate
     }
     
     func formateTimer(timers: Int){
-        getbytes[4] = UInt8(timers / 256)
-        getbytes[5] = UInt8(Int(timers) % 256)
+        getbytes[4] = UInt8(Int(timers) / 65536)
+        getbytes[5] = UInt8((Int(timers) % 65536) / 256)
+        getbytes[6] = UInt8((Int(timers) % 65536) % 256)
         timebytes[0] = getbytes[4]
         timebytes[1] = getbytes[5]
+        timebytes[2] = getbytes[6]
 
         var time = timers
         var hour = 0

@@ -320,7 +320,7 @@ import UIKit
         currentTime.second = second
         returnTimer = (currentTime.hour * 3600) + (currentTime.minute * 60) + currentTime.second
 
-        var expectedRow = hour == 0 ? 26 :  hour + 13
+        var expectedRow = hour == 0 ? 26 :  hour + 100
         hourTableView.selectRow(at: IndexPath(row: expectedRow, section: 0), animated: true, scrollPosition: .middle)
         
         expectedRow = minute == 0 ? 120 : minute + 60 // workaround for issue when minute = 0
@@ -354,7 +354,7 @@ extension DateTimePicker: UITableViewDataSource, UITableViewDelegate {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == hourTableView {
             // need triple of origin storage to scroll infinitely
-            return 13 * 3
+            return 100 * 3
         }
         // need triple of origin storage to scroll infinitely
         return 60 * 3
@@ -372,7 +372,7 @@ extension DateTimePicker: UITableViewDataSource, UITableViewDelegate {
         if tableView == minuteTableView || tableView == secondTableView {
             cell.textLabel?.text = String(format: "%02i", indexPath.row % 60)
         } else {
-            cell.textLabel?.text = String(format: "%02i", (indexPath.row % 13))
+            cell.textLabel?.text = String(format: "%02i", (indexPath.row % 100))
         }
 
         return cell
@@ -382,7 +382,7 @@ extension DateTimePicker: UITableViewDataSource, UITableViewDelegate {
         tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
         
         if tableView == hourTableView {
-            currentTime.hour = Int(indexPath.row - 13) % 13
+            currentTime.hour = Int(indexPath.row - 100) % 100
         } else if tableView == minuteTableView {
             currentTime.minute = Int(indexPath.row - 60) % 60
         } else if tableView == secondTableView {
@@ -449,7 +449,7 @@ extension DateTimePicker: UICollectionViewDataSource, UICollectionViewDelegate {
 
             tableView.selectRow(at: IndexPath(row: Int(row), section: 0), animated: true, scrollPosition: .middle)
             if tableView == hourTableView {
-                currentTime.hour = Int(row - 13) % 13
+                currentTime.hour = Int(row - 100) % 100
             } else if tableView == minuteTableView {
                 currentTime.minute = Int(row - 60) % 60
             } else if tableView == secondTableView {
